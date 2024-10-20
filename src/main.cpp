@@ -9,7 +9,7 @@ const int common_pins[] = {13, 12, 14}; // common
 // const int common_pins[] = {13, 12, 14}; // common
 const int juri[] = {23, 22, 19};
 // const int juri[] = {23, 22, 1};
-int nilai_peserta[3] = {1, 1, 1};
+int nilai_peserta[3] = {8, 1, 1};
 int pesertaAktif = -1;
 int jumlahPesertaAktif = 3;
 int kondisi = 0; //
@@ -37,7 +37,7 @@ const int angka_7seg[10][7] = {
     {HIGH, HIGH, HIGH, HIGH, LOW, HIGH, HIGH}   // 9
 };
 const int huruf_7seg[3][7] = {
-    {HIGH, HIGH, HIGH, HIGH, HIGH, LOW, HIGH}, // a
+    {HIGH, HIGH, HIGH, LOW, HIGH, HIGH, HIGH}, // a
     {LOW, LOW, HIGH, HIGH, HIGH, HIGH, HIGH},  // b
     {HIGH, LOW, LOW, HIGH, HIGH, HIGH, LOW}    // c
 };
@@ -196,7 +196,6 @@ void setDisplay(int kondisi)
             }
         }
     }
-
     else if (kondisi == 3)
     {
         for (int i = 0; i < 3; i++)
@@ -209,6 +208,18 @@ void setDisplay(int kondisi)
             else
             {
                 tampilkanHuruf(i, i);
+                delay(5);
+            }
+        }
+    }
+    else if (kondisi == 4)
+    {
+        for (int i = 0; i < 3; i++)
+        {
+            digitalWrite(common_pins[i], HIGH);
+            if (i == pesertaAktif)
+            {
+                tampilkanAngka(nilai_peserta[i], i);
                 delay(5);
             }
         }
@@ -305,6 +316,9 @@ void loop()
             pesertaStates.setActive(i);
         }
         tombolSudahDitekan = false;
+
+        if (nilai_peserta[pesertaAktif] == 9)
+            kondisi = 4;
     }
 
     if (digitalRead(juri[2]) == LOW && prevJuriState[2] == HIGH && tombolSudahDitekan == true && pesertaStates.getActiveCount() == 3)
