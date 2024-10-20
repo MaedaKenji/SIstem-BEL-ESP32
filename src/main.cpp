@@ -2,14 +2,17 @@
 
 // Definisikan pin GPIO untuk a-g
 const int pins[] = {33, 32, 27, 15, 2, 25, 26}; // a, b, c, d, e, f, g
-const int tombol[] = {4,16,17};           // 3 tombol untuk 3 peserta
+// const int tombol[] = {4, 16, 17};               // 3 tombol untuk 3 peserta
+const int tombol[] = {4, 16, 17}; // 3 tombol untuk 3 peserta
 // Definisikan pin untuk common
 const int common_pins[] = {13, 12, 14}; // common
-const int juri[] = {23,22,1};
+// const int common_pins[] = {13, 12, 14}; // common
+const int juri[] = {23, 22, 19};
+// const int juri[] = {23, 22, 1};
 int nilai_peserta[3] = {8, 1, 2};
 int pesertaAktif = -1;
 int jumlahPesertaAktif = 3;
-int kondisi = 0;                // 
+int kondisi = 0;                 //
 bool tombolSudahDitekan = false; // Variabel untuk memeriksa apakah sudah ada tombol yang ditekan
 int timer = 0;
 bool prevJuriState[3] = {};
@@ -131,7 +134,7 @@ int tambahNilai(int pesertaAktif)
     return nilai_peserta[pesertaAktif];
 }
 
-int kurangNilai()
+int kurangNilai(int pesertaAktif)
 {
     if (nilai_peserta[pesertaAktif] > 0)
     {
@@ -140,17 +143,11 @@ int kurangNilai()
     return nilai_peserta[pesertaAktif];
 }
 
-int switchPeserta()
-{
-    pesertaAktif = (pesertaAktif + 1) % 3;
-    return pesertaAktif;
-}
-
 int tampilkanHuruf(int huruf, int displayIndex)
 {
     if (huruf < 0 || huruf > 2)
     {
-        Serial.println("Huruf tidak valid! Masukkan 0 untuk 'a', 1 untuk 'b', atau 2 untuk 'c'.");
+        // Serial.println("Huruf tidak valid! Masukkan 0 untuk 'a', 1 untuk 'b', atau 2 untuk 'c'.");
         return -1;
     }
 
@@ -170,40 +167,47 @@ int tampilkanHuruf(int huruf, int displayIndex)
 
 void setDisplay(int kondisi)
 {
-    if (kondisi == 0) {
+    if (kondisi == 0)
+    {
         for (int i = 0; i < 3; i++)
         {
             tampilkanAngka(nilai_peserta[i], i);
+            delay(5);
         }
     }
-    else if (kondisi == 1) {
+    else if (kondisi == 1)
+    {
         for (int i = 0; i < 3; i++)
         {
             tampilkanHuruf(i, i);
         }
     }
-    else if (kondisi == 2) {
+    else if (kondisi == 2)
+    {
         for (int i = 0; i < 3; i++)
         {
             digitalWrite(common_pins[i], HIGH);
-            if (i == pesertaAktif) {
+            if (i == pesertaAktif)
+            {
                 tampilkanHuruf(i, i);
             }
         }
     }
 
-    else if (kondisi == 3) {
+    else if (kondisi == 3)
+    {
         for (int i = 0; i < 3; i++)
         {
-            if (i == pesertaAktif) {
+            if (i == pesertaAktif)
+            {
                 tampilkanAngka(nilai_peserta[i], i);
             }
-            else {
+            else
+            {
                 tampilkanHuruf(i, i);
             }
         }
     }
-
 }
 
 void setup()
@@ -238,13 +242,14 @@ void setup()
     // Mengatur status pin common
     for (int i = 0; i < 3; i++)
     {
-        digitalWrite(common_pins[i], LOW);
-        // Serial.println("Common pin " + String(common_pins[i]) + " =" + String(digitalRead(common_pins[i])));
-        // delay(2000);
+        digitalWrite(common_pins[i], HIGH);
     }
 
+    if (false)
+    {
+    }
 
-    Serial.println("Program Started");
+    // Serial.println("Program Started");
     // int pinStatus = digitalRead(14);
 
     // Menampilkan status pin 14 melalui Serial Monitor
@@ -270,8 +275,6 @@ void loop()
 
     Serial.println("kondisi: " + String(kondisi));
 
-    
-
     // Membaca user input
     for (int i = 0; i < 3; i++)
     {
@@ -280,33 +283,41 @@ void loop()
             tombolSudahDitekan = true;
             pesertaAktif = i;
             kondisi = 2;
-            Serial.println("Tombol " + String(i) + " ditekan");
+            // Serial.println("Tombol " + String(i) + " ditekan");
         }
     }
 
-    if (digitalRead(juri[0])==LOW && prevJuriState[0]==HIGH && tombolSudahDitekan==false && pesertaStates.getActiveCount() == 3){
+    if (digitalRead(juri[0]) == LOW && prevJuriState[0] == HIGH && tombolSudahDitekan == false && pesertaStates.getActiveCount() == 3)
+    {
         kondisi = 1;
+        Serial.println("Juri Standby ditekan");
     }
 
-    if (digitalRead(juri[1]) == LOW && prevJuriState[1] == HIGH && tombolSudahDitekan == true){
-        tambahNilai(pesertaAktif);
-        kondisi = 0;
-        for (int i = 0; i < 3; i++){
-            pesertaStates.setActive(i);
+    if (false)
+    {
+
+        if (digitalRead(juri[1]) == LOW && prevJuriState[1] == HIGH && tombolSudahDitekan == true)
+        {
+            tambahNilai(pesertaAktif);
+            kondisi = 0;
+            for (int i = 0; i < 3; i++)
+            {
+                pesertaStates.setActive(i);
+            }
+            tombolSudahDitekan = false;
         }
-        tombolSudahDitekan = false;
+
+        if (digitalRead(juri[2]) == LOW && prevJuriState[2] == HIGH && tombolSudahDitekan == true)
+        {
+            kurangNilai(pesertaAktif);
+            kondisi = 3;
+            pesertaStates.setInactive(pesertaAktif);
+            tombolSudahDitekan = false;
+        }
+
+        for (int i = 0; i < 3; i++)
+        {
+            prevJuriState[i] = digitalRead(juri[i]);
+        }
     }
-
-    if (digitalRead(juri[2]) == LOW && prevJuriState[2] == HIGH && tombolSudahDitekan == true){
-        kurangNilai();
-        kondisi = 3;
-        pesertaStates.setInactive(pesertaAktif);
-        tombolSudahDitekan = false;
-    }
-
-    for (int i = 0; i < 3; i++){
-        prevJuriState[i] = digitalRead(juri[i]);
-    }
-
-
 }
