@@ -1,0 +1,20 @@
+#include <Arduino.h>
+
+void setup() {
+  // put your setup code here, to run once:
+  Serial.begin(115200);
+  pinMode(14, OUTPUT);
+  digitalWrite(14, LOW);
+  pinMode(12, OUTPUT);
+  digitalWrite(12, LOW);
+  pinMode(13, OUTPUT);
+  digitalWrite(13, LOW);
+
+  pinMode(32, OUTPUT);
+  digitalWrite(32, HIGH);
+}
+
+void loop() {
+  digitalWrite(32, HIGH);
+  
+}
