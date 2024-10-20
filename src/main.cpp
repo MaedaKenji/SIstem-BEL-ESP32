@@ -316,10 +316,14 @@ void loop()
             pesertaStates.setActive(i);
         }
         tombolSudahDitekan = false;
+        tombolResetSudahDitekan = false;
+
 
         if (nilai_peserta[pesertaAktif] == 9)
             kondisi = 4;
     }
+        // Serial.println("Peserta ke " + String(pesertaAktif) + " Keaktifan: " + String(pesertaStates.isActive(pesertaAktif)));
+
 
     if (digitalRead(juri[2]) == LOW && prevJuriState[2] == HIGH && tombolSudahDitekan == true && pesertaStates.getActiveCount() == 3)
     {
@@ -328,10 +332,15 @@ void loop()
         pesertaStates.setInactive(pesertaAktif);
         startTime = millis();
         tombolSudahDitekan = false;
+        tombolResetSudahDitekan = false;
+
+        Serial.println("Peserta ke " + String(pesertaAktif) + " Keaktifan: " + String(pesertaStates.isActive(pesertaAktif)));
+        Serial.println("Jumlah peserta aktif: " + String(pesertaStates.getActiveCount()));
     }
 
     if (digitalRead(juri[2]) == LOW && prevJuriState[2] == HIGH && tombolSudahDitekan == true && pesertaStates.getActiveCount() == 2)
     {
+        Serial.println("Jumlah peserta aktif 2: " + String(pesertaStates.getActiveCount()));
         kurangNilai(pesertaAktif);
         kondisi = 0;
         for (int i = 0; i < 3; i++)
@@ -339,6 +348,7 @@ void loop()
             pesertaStates.setActive(i);
         }
         tombolSudahDitekan = false;
+        tombolResetSudahDitekan = false;
     }
 
     // Hitung waktu untuk menampilkan huruf
@@ -353,15 +363,15 @@ void loop()
 
     if (kondisi == 3)
     {
-        Serial.println("waktu 3: " + String(millis() - startTime));
+        // Serial.println("waktu 3: " + String(millis() - startTime));
         if (millis() - startTime > 3000)
         {
             kondisi = 0;
         }
-        for (int i = 0; i < 3; i++)
-        {
-            pesertaStates.setActive(i);
-        }
+        // for (int i = 0; i < 3; i++)
+        // {
+        //     pesertaStates.setActive(i);
+        // }
     }
 
     if (millis() - startTimeReset < 2000)
