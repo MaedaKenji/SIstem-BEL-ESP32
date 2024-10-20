@@ -12,18 +12,17 @@ const int juri[] = {23, 22, 19};
 int nilai_peserta[3] = {1, 1, 1};
 int pesertaAktif = -1;
 int jumlahPesertaAktif = 3;
-int kondisi = 0; //
-int timer = 0;
+int kondisi = 0;                 //
 bool tombolSudahDitekan = false; // Variabel untuk memeriksa apakah sudah ada tombol yang ditekan
+int timer = 0;
 bool prevJuriState[3] = {};
 bool currentDecreaseState = HIGH;
 bool prevIncreaseState = HIGH;
 bool semua = true;
-bool tombolResetSudahDitekan = false;
+bool reset = false;
 const int MAX_PESERTA = 3;
-unsigned long startTime = millis();      // Ambil waktu mulai
-unsigned long startTimeReset = millis(); // Ambil waktu mulai
-unsigned long limaBelasS = 15000;        // 15 detik dalam milidetik
+unsigned long startTime = millis(); // Ambil waktu mulai
+unsigned long limaBelasS = 15000;   // 15 detik dalam milidetik
 const int angka_7seg[10][7] = {
     {HIGH, HIGH, HIGH, HIGH, HIGH, HIGH, LOW},  // 0
     {LOW, HIGH, HIGH, LOW, LOW, LOW, LOW},      // 1
@@ -254,7 +253,9 @@ void setup()
     {
     }
 
-    Serial.println("Program Started");
+    // Serial.println("Program Started");
+    // int pinStatus = digitalRead(14);
+
     // Menampilkan status pin 14 melalui Serial Monitor
     // if (pinStatus == HIGH) {
     //     Serial.println("Pin 14 is HIGH");
@@ -267,6 +268,29 @@ void setup()
 void loop()
 {
     setDisplay(kondisi);
+    // int pinStatus = digitalRead(14);
+
+    // Menampilkan status pin 14 melalui Serial Monitor
+    // if (pinStatus == HIGH) {
+    //     Serial.println("Pin 14 is HIGH");
+    // } else {
+    //     Serial.println("Pin 14 is LOW");
+    // }
+
+    // Serial.println("kondisi: " + String(kondisi));
+    // for (int i = 0; i < 3; i++)
+    // {
+    //     int status = digitalRead(juri[i]);
+    //     if (status == LOW)
+    //     {
+    //         Serial.println("Tombol " + String(i) + " status: " + String(status));
+    //     }
+    //     else
+    //     {
+    //         // Serial.println("Tombol " + String(i) + " status: " + String(status));
+    //     }
+    // }
+
     // Membaca user input
     for (int i = 0; i < 3; i++)
     {
@@ -283,17 +307,14 @@ void loop()
     {
         kondisi = 1;
         startTime = millis();
-        // startTimeReset = millis();
-        delay(100); // Delay deboucing
-        Serial.println("Tombol juri 0 ditekan");
-        // Serial.println(startTimeReset);
+        // Delay deboucing
+        delay(100);
     }
-
-    if (digitalRead(juri[0]) == LOW && prevJuriState[0] == HIGH && millis() - startTimeReset > 2000)
+    
+    if (digitalRead(juri[0]) == HIGH && prevJuriState[0] == LOW)
     {
-        startTimeReset = millis();
-        tombolResetSudahDitekan = true;
-        // Serial.println(startTimeReset);
+        reset = true;
+        Serial.println("Reset diubah jadi true");
     }
 
     if (digitalRead(juri[1]) == LOW && prevJuriState[1] == HIGH && tombolSudahDitekan == true)
@@ -330,7 +351,7 @@ void loop()
     // Hitung waktu untuk menampilkan huruf
     if (kondisi == 1)
     {
-        // Serial.println("waktu 15: " + String(millis() - startTime));
+        Serial.println("waktu: " + String(millis() - startTime));
         if (millis() - startTime > 15000)
         {
             kondisi = 0;
@@ -339,7 +360,7 @@ void loop()
 
     if (kondisi == 3)
     {
-        Serial.println("waktu 3: " + String(millis() - startTime));
+        Serial.println("waktu: " + String(millis() - startTime));
         if (millis() - startTime > 3000)
         {
             kondisi = 0;
@@ -350,32 +371,19 @@ void loop()
         }
     }
 
-    if (millis() - startTimeReset < 2000)
+    if (reset && millis() - startTime < 2000 &&
+        digitalRead(juri[0]) == LOW && prevJuriState[0] == HIGH)
     {
-        // Serial.println("waktu reset: " + String(millis() - startTime));
-        if (millis() - startTimeReset > 200 && tombolResetSudahDitekan == true)
+        kondisi = 0;
+        for (int i = 0; i < 3; i++)
         {
-            Serial.println("waktu reset2: " + String(millis() - startTime));
-
-            if (digitalRead(juri[0]) == LOW && prevJuriState[0] == HIGH)
-            {
-                Serial.println("Tombol masuk");
-                kondisi = 0;
-                for (int i = 0; i < 3; i++)
-                {
-                    pesertaStates.setActive(i);
-                }
-                tombolSudahDitekan = false;
-                tombolResetSudahDitekan = false;
-                Serial.println("Reset");
-                startTimeReset = millis();
-            }
-            else
-            {
-                // Serial.println("Tombol keluar");
-            }
+            pesertaStates.setActive(i);
         }
+        tombolSudahDitekan = false;
+        reset = false;
+        Serial.println("Reset");
     }
+
 
     for (int i = 0; i < 3; i++)
     {
